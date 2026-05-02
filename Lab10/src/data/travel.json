@@ -1,0 +1,17 @@
+[
+  { "dest_id": 1, "name": "Bondi Beach", "country": "Australia", "category": "Ocean", "description": "Popular beach in Sydney known for surfing and coastal walks.", "rating": "4.8" },
+  { "dest_id": 2, "name": "Mount Fuji", "country": "Japan", "category": "Mountain", "description": "Iconic volcano and Japan's highest mountain.", "rating": "4.9" },
+  { "dest_id": 3, "name": "Great Barrier Reef", "country": "Australia", "category": "Ocean", "description": "World's largest coral reef system with diverse marine life.", "rating": "4.9" },
+  { "dest_id": 4, "name": "Swiss Alps", "country": "Switzerland", "category": "Mountain", "description": "Famous mountain range known for skiing and alpine scenery.", "rating": "4.8" },
+  { "dest_id": 5, "name": "Paris", "country": "France", "category": "City", "description": "Historic city known for the Eiffel Tower and rich culture.", "rating": "4.7" },
+  { "dest_id": 6, "name": "Maldives", "country": "Maldives", "category": "Beach", "description": "Tropical island destination with clear waters and coral reefs.", "rating": "4.9" },
+  { "dest_id": 7, "name": "New York", "country": "USA", "category": "City", "description": "Major global city famous for landmarks and entertainment.", "rating": "4.7" },
+  { "dest_id": 8, "name": "Banff National Park", "country": "Canada", "category": "Mountain", "description": "Beautiful park with lakes, mountains and wildlife.", "rating": "4.8" },
+  { "dest_id": 9, "name": "Phuket", "country": "Thailand", "category": "Beach", "description": "Island destination known for beaches and nightlife.", "rating": "4.6" },
+  { "dest_id": 10, "name": "Santorini", "country": "Greece", "category": "Beach", "description": "Famous for white houses and blue domes.", "rating": "4.8" },
+  { "dest_id": 11, "name": "Rome", "country": "Italy", "category": "City", "description": "Historic city with ancient monuments and rich culture.", "rating": "4.7" },
+  { "dest_id": 12, "name": "Himalayas", "country": "Nepal", "category": "Mountain", "description": "Home to the highest mountains in the world.", "rating": "4.9" },
+  { "dest_id": 13, "name": "Barcelona", "country": "Spain", "category": "City", "description": "City known for unique architecture and culture.", "rating": "4.7" },
+  { "dest_id": 14, "name": "Waikiki Beach", "country": "USA", "category": "Beach", "description": "Famous beach in Hawaii with clear water and resorts.", "rating": "4.8" },
+  { "dest_id": 15, "name": "Blue Mountains", "country": "Australia", "category": "Mountain", "description": "Mountain region near Sydney known for dramatic scenery.", "rating": "4.7" }
+]
