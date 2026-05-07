@@ -1,11 +1,6 @@
 <?php
 header('Access-Control-Allow-Origin: *');
 
-// Reference:
-// https://www.leaseweb.com/labs/2015/10/creating-a-simple-rest-api-in-php/
-
-// Use this API for demonstration purposes only
-
 // get the HTTP method, path and body of the request
 $method = $_SERVER['REQUEST_METHOD'];
 $request = isset($_SERVER['PATH_INFO']) ? explode('/', trim($_SERVER['PATH_INFO'],'/')) : array();
@@ -65,6 +60,8 @@ if ($result) {
 	} else {
 		echo mysqli_affected_rows($conn);
 	}
+} else {
+	echo 'ERROR: ' . mysqli_error($conn);
 }
 
 // close mysql connection

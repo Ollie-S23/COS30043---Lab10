@@ -5,7 +5,7 @@ import { RouterLink, RouterView } from 'vue-router'
 <template>
   <div class="app-wrapper">
     <header>
-      <h1>Lab 08</h1>
+      <h1>Lab 10</h1>
       <nav>
         <RouterLink to="/interface">Interface</RouterLink>
         <RouterLink to="/table"> Table</RouterLink>

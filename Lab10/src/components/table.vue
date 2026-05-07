@@ -58,7 +58,7 @@ export default {
 
 <template>
     <div class="container">
-        <h1 class="col-12 d-flex justify-content-center">Lab 09. Pagination</h1>
+        <h1 class="col-12 d-flex justify-content-center">TABLE</h1>
         <div class="input-group mb-3">
             <input type="text" class="form-control" placeholder="Search..." v-model="query">
         </div>

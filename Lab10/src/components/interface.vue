@@ -14,7 +14,7 @@ export default {
             editSuccess: false,
             deleteMessage: '',
             deleteSuccess: false,
-            newRecord: { name: '', country: '', category: '', description: '', rating: '' },
+            newRecord: { dest_id: '', name: '', country: '', category: '', description: '', rating: '' },
             createMessage: '',
             createSuccess: false,
         };
@@ -44,7 +44,7 @@ export default {
             try {
                 const res = await fetch(`${API_URL}/dest_id/${this.currentRecord.dest_id}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'text/plain' },
                     body: JSON.stringify({ [this.editField]: this.editValue }),
                 });
                 const affected = await res.text();
@@ -87,26 +87,29 @@ export default {
 
         async createRecord() {
             this.createMessage = '';
-            const { name, country, category, description, rating } = this.newRecord;
-            if (!name || !country || !category || !description || !rating) {
+            const { dest_id, name, country, category, description, rating } = this.newRecord;
+            if (!dest_id || !name || !country || !category || !description || !rating) {
                 this.createSuccess = false;
-                this.createMessage = 'Please fill in all fields.';
+                this.createMessage = 'Please fill in all fields including ID.';
                 return;
             }
             try {
                 const res = await fetch(API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'text/plain' },
                     body: JSON.stringify(this.newRecord),
                 });
-                const newId = await res.text();
-                if (newId) {
+                const body = await res.text();
+                if (body.startsWith('ERROR:')) {
+                    this.createSuccess = false;
+                    this.createMessage = `Server error: ${body}`;
+                } else if (body.trim() !== '') {
                     this.createSuccess = true;
-                    this.createMessage = `New destination created with ID ${newId}.`;
-                    this.newRecord = { name: '', country: '', category: '', description: '', rating: '' };
+                    this.createMessage = `New destination created with ID ${this.newRecord.dest_id}.`;
+                    this.newRecord = { dest_id: '', name: '', country: '', category: '', description: '', rating: '' };
                 } else {
                     this.createSuccess = false;
-                    this.createMessage = 'Failed to create record.';
+                    this.createMessage = 'Failed to create record — check that the ID is unique and all fields are valid.';
                 }
             } catch (e) {
                 this.createSuccess = false;
@@ -119,7 +122,7 @@ export default {
 
 <template>
     <div class="container">
-        <h1 class="col-12 d-flex justify-content-center">Lab 10. Edit Destinations</h1>
+        <h1 class="col-12 d-flex justify-content-center">INTERFACE</h1>
         <fieldset class="mb-4">
             <legend>Lookup Record</legend>
             <div class="input-group mb-3">
@@ -189,6 +192,10 @@ export default {
             <legend>Create New Destination</legend>
             <form @submit.prevent="createRecord" novalidate>
                 <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="new_dest_id" class="form-label">ID</label>
+                        <input type="number" class="form-control" id="new_dest_id" v-model="newRecord.dest_id" placeholder="e.g. 16" min="1" required />
+                    </div>
                     <div class="col-md-6">
                         <label for="new_name" class="form-label">Name</label>
                         <input type="text" class="form-control" id="new_name" v-model="newRecord.name" placeholder="Name..." />
