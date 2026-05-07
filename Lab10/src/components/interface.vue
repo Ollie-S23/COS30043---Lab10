@@ -20,72 +20,82 @@ export default {
         };
     },
     methods: {
-        async lookupRecord() {
+        lookupRecord: function() {
             this.lookupError = '';
             this.currentRecord = null;
             this.editMessage = '';
             this.deleteMessage = '';
-            try {
-                const res = await fetch(`${API_URL}/dest_id/${this.lookupId}`);
-                const data = await res.json();
-                if (data.length === 0) {
-                    this.lookupError = `No record found with ID ${this.lookupId}.`;
-                } else {
-                    this.currentRecord = data[0];
-                    this.editValue = '';
-                }
-            } catch (e) {
-                this.lookupError = 'Error fetching record: ' + e.message;
-            }
+            var self = this;
+            var readSQLApiURL = `${API_URL}/dest_id/${this.lookupId}`;
+            fetch(readSQLApiURL)
+                .then(response => { return response.json(); })
+                .then(data => {
+                    if (data.length === 0) {
+                        self.lookupError = `No record found with ID ${self.lookupId}.`;
+                    } else {
+                        self.currentRecord = data[0];
+                        self.editValue = '';
+                    }
+                })
+                .catch(error => { self.lookupError = 'Error fetching record: ' + error; });
         },
 
-        async editRecord() {
+        editRecord: function() {
             this.editMessage = '';
-            try {
-                const res = await fetch(`${API_URL}/dest_id/${this.currentRecord.dest_id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify({ [this.editField]: this.editValue }),
+            var self = this;
+            var putSQLApiURL = `${API_URL}/dest_id/${this.currentRecord.dest_id}`;
+            const requestOptions = {
+                method: 'PUT',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ [this.editField]: this.editValue }),
+            };
+            fetch(putSQLApiURL, requestOptions)
+                .then(response => { return response.text(); })
+                .then(affected => {
+                    if (Number(affected) > 0) {
+                        self.editSuccess = true;
+                        self.editMessage = 'Record updated successfully.';
+                        self.currentRecord[self.editField] = self.editValue;
+                        self.editValue = '';
+                    } else {
+                        self.editSuccess = false;
+                        self.editMessage = 'No rows were updated.';
+                    }
+                })
+                .catch(error => {
+                    self.editSuccess = false;
+                    self.editMessage = 'Error updating record: ' + error;
                 });
-                const affected = await res.text();
-                if (Number(affected) > 0) {
-                    this.editSuccess = true;
-                    this.editMessage = 'Record updated successfully.';
-                    this.currentRecord[this.editField] = this.editValue;
-                    this.editValue = '';
-                } else {
-                    this.editSuccess = false;
-                    this.editMessage = 'No rows were updated.';
-                }
-            } catch (e) {
-                this.editSuccess = false;
-                this.editMessage = 'Error updating record: ' + e.message;
-            }
         },
 
-        async deleteRecord() {
+        deleteRecord: function() {
             if (!confirm(`Delete "${this.currentRecord.name}" (ID ${this.currentRecord.dest_id})?`)) return;
             this.deleteMessage = '';
-            try {
-                const res = await fetch(`${API_URL}/dest_id/${this.currentRecord.dest_id}`, {
-                    method: 'DELETE',
+            var self = this;
+            var delSQLApiURL = `${API_URL}/dest_id/${this.currentRecord.dest_id}`;
+            const requestOptions = {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+            };
+            fetch(delSQLApiURL, requestOptions)
+                .then(response => { return response.text(); })
+                .then(affected => {
+                    if (Number(affected) > 0) {
+                        self.deleteSuccess = true;
+                        self.deleteMessage = `Record ID ${self.currentRecord.dest_id} deleted.`;
+                        self.currentRecord = null;
+                    } else {
+                        self.deleteSuccess = false;
+                        self.deleteMessage = 'No rows were deleted.';
+                    }
+                })
+                .catch(error => {
+                    self.deleteSuccess = false;
+                    self.deleteMessage = 'Error deleting record: ' + error;
                 });
-                const affected = await res.text();
-                if (Number(affected) > 0) {
-                    this.deleteSuccess = true;
-                    this.deleteMessage = `Record ID ${this.currentRecord.dest_id} deleted.`;
-                    this.currentRecord = null;
-                } else {
-                    this.deleteSuccess = false;
-                    this.deleteMessage = 'No rows were deleted.';
-                }
-            } catch (e) {
-                this.deleteSuccess = false;
-                this.deleteMessage = 'Error deleting record: ' + e.message;
-            }
         },
 
-        async createRecord() {
+        createRecord: function() {
             this.createMessage = '';
             const { dest_id, name, country, category, description, rating } = this.newRecord;
             if (!dest_id || !name || !country || !category || !description || !rating) {
@@ -93,28 +103,32 @@ export default {
                 this.createMessage = 'Please fill in all fields including ID.';
                 return;
             }
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify(this.newRecord),
+            var self = this;
+            var postSQLApiURL = API_URL;
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(this.newRecord),
+            };
+            fetch(postSQLApiURL, requestOptions)
+                .then(response => { return response.text(); })
+                .then(body => {
+                    if (body.startsWith('ERROR:')) {
+                        self.createSuccess = false;
+                        self.createMessage = `Server error: ${body}`;
+                    } else if (body.trim() !== '') {
+                        self.createSuccess = true;
+                        self.createMessage = `New destination created with ID ${self.newRecord.dest_id}.`;
+                        self.newRecord = { dest_id: '', name: '', country: '', category: '', description: '', rating: '' };
+                    } else {
+                        self.createSuccess = false;
+                        self.createMessage = 'Failed to create record — check that the ID is unique and all fields are valid.';
+                    }
+                })
+                .catch(error => {
+                    self.createSuccess = false;
+                    self.createMessage = 'Error creating record: ' + error;
                 });
-                const body = await res.text();
-                if (body.startsWith('ERROR:')) {
-                    this.createSuccess = false;
-                    this.createMessage = `Server error: ${body}`;
-                } else if (body.trim() !== '') {
-                    this.createSuccess = true;
-                    this.createMessage = `New destination created with ID ${this.newRecord.dest_id}.`;
-                    this.newRecord = { dest_id: '', name: '', country: '', category: '', description: '', rating: '' };
-                } else {
-                    this.createSuccess = false;
-                    this.createMessage = 'Failed to create record — check that the ID is unique and all fields are valid.';
-                }
-            } catch (e) {
-                this.createSuccess = false;
-                this.createMessage = 'Error creating record: ' + e.message;
-            }
         },
     },
 };

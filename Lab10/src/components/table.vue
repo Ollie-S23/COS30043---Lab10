@@ -8,12 +8,12 @@ export default {
         return {
             units: [],
             query: '',
-            rowsPerPage: 5,
+            perPage: 5,
             currentPage: 1
         };
     },
     computed: {
-        filteredUnits() {
+        filteredUnits: function() {
             if (!this.query) return this.units;
             const q = this.query.toLowerCase();
             return this.units.filter(u =>
@@ -23,34 +23,36 @@ export default {
                 u.description.toLowerCase().includes(q)
             );
         },
-        pageCount() {
-            if (this.rowsPerPage === 'all') return 1;
-            return Math.ceil(this.filteredUnits.length / parseInt(this.rowsPerPage));
+        getPageCount: function() {
+            if (this.perPage === 'all') return 1;
+            return Math.ceil(this.filteredUnits.length / parseInt(this.perPage));
         },
-        pagedUnits() {
-            if (this.rowsPerPage === 'all') return this.filteredUnits;
-            const rpp = parseInt(this.rowsPerPage);
-            const start = (this.currentPage - 1) * rpp;
-            return this.filteredUnits.slice(start, start + rpp);
+        getItems: function() {
+            if (this.perPage === 'all') return this.filteredUnits;
+            let current = this.currentPage * parseInt(this.perPage);
+            let start = current - parseInt(this.perPage);
+            return this.filteredUnits.slice(start, current);
         }
     },
-    mounted() {
-        fetch('https://mercury.swin.edu.au/cos30043/s105912692/Lab10/apis.php')
-            .then(r => r.json())
-            .then(data => { this.units = data; })
-            .catch(error => console.error('Error:', error));
+    created() {
+        var self = this;
+        var readSQLApiURL = 'https://mercury.swin.edu.au/cos30043/s105912692/Lab10/apis.php';
+        fetch(readSQLApiURL)
+            .then(response => { return response.json(); })
+            .then(data => { self.units = data; })
+            .catch(error => { console.error('Error:', error); });
     },
     watch: {
-        query() {
+        query: function() {
             this.currentPage = 1;
         },
-        rowsPerPage() {
+        perPage: function() {
             this.currentPage = 1;
         }
     },
     methods: {
-        clickCallback(pageNum) {
-            this.currentPage = pageNum;
+        clickCallback: function(pageNum) {
+            this.currentPage = Number(pageNum);
         }
     }
 };
@@ -64,7 +66,7 @@ export default {
         </div>
         <div class="mb-3">
             <label for="rowsSelect" class="form-label me-2">Number of rows:</label>
-            <select id="rowsSelect" class="form-select d-inline-block w-auto" v-model="rowsPerPage">
+            <select id="rowsSelect" class="form-select d-inline-block w-auto" v-model="perPage">
                 <option value="5">5</option>
                 <option value="10">10</option>
                 <option value="all">All</option>
@@ -84,22 +86,22 @@ export default {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="unit in pagedUnits" :key="unit.dest_id">
+                    <tr v-for="unit in getItems" :key="unit.dest_id">
                         <td>{{ unit.name }}</td>
                         <td>{{ unit.country }}</td>
                         <td>{{ unit.category }}</td>
                         <td>{{ unit.description }}</td>
                         <td>{{ unit.rating }}</td>
                     </tr>
-                    <tr v-if="pagedUnits.length === 0">
+                    <tr v-if="getItems.length === 0">
                         <td colspan="5" class="text-center text-muted">No destinations found.</td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <Paginate
-            v-if="pageCount > 1"
-            :page-count="pageCount"
+            v-if="getPageCount > 1"
+            :page-count="getPageCount"
             :page-range="3"
             :margin-pages="2"
             :click-handler="clickCallback"
